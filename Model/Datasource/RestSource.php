@@ -32,7 +32,7 @@ class RestSource extends DataSource {
   public function __construct($config, $Http = null) {
     parent::__construct($config);
     if (!$Http) {
-      App::import('Core', 'HttpSocket');
+      App::uses('HttpSocket', 'Network/Http');
       $Http = new HttpSocket();
     }
     $this->Http = $Http;
@@ -121,22 +121,22 @@ class RestSource extends DataSource {
 
     // Decode response according to content type
     switch ($contentType) {
-    	case 'application/xml':
-    	case 'application/atom+xml':
-    	case 'application/rss+xml':
+      case 'application/xml':
+      case 'application/atom+xml':
+	    case 'application/rss+xml':
         // If making multiple requests that return xml, I found that using the
         // same Xml object with Xml::load() to load new responses did not work,
         // consequently it is necessary to create a whole new instance of the
         // Xml class. This can use a lot of memory so we have to manually
         // garbage collect the Xml object when we've finished with it, i.e. got
         // it to transform the xml string response into a php array.
-    	  App::import('Core', 'Xml');
-      	$Xml = new Xml($response);
-      	$response = $Xml->toArray(false); // Send false to get separate elements
+        App::import('Core', 'Xml');
+        $Xml = new Xml($response);
+        $response = $Xml->toArray(false); // Send false to get separate elements
         $Xml->__destruct();
         $Xml = null;
         unset($Xml);
-      	break;
+        break;
       case 'application/json':
       case 'text/javascript':
         $response = json_decode($response, true);
